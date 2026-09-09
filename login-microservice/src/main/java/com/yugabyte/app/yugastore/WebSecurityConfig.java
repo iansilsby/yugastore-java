@@ -1,19 +1,20 @@
 package com.yugabyte.app.yugastore;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
   private final UserDetailsService userDetailsService;
   private final PasswordEncoder passwordEncoder;
@@ -24,35 +25,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     this.passwordEncoder = passwordEncoder;
   }
 
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-      .authorizeRequests()
-      .antMatchers("/resources/**", "/registration")
-      .permitAll()
-      .anyRequest()
-      .authenticated()
-      .and()
-      .formLogin()
-      .loginPage("/login")
-      .permitAll()
-      .and()
-      .logout()
-      .logoutSuccessUrl("/login")
-      .invalidateHttpSession(true);
-
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(
+          PathPatternRequestMatcher.withDefaults().matcher("/resources/**"),
+          PathPatternRequestMatcher.withDefaults().matcher("/registration"))
+        .permitAll()
+        .anyRequest()
+        .authenticated())
+      .formLogin(form -> form
+        .loginPage("/login")
+        .permitAll())
+      .logout(logout -> logout
+        .logoutSuccessUrl("/login")
+        .invalidateHttpSession(true));
+    return http.build();
   }
 
   @Bean
-  public AuthenticationManager customAuthenticationManager() throws Exception {
-    return authenticationManager();
-  }
-
-  @Autowired
-  public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService)
-      .passwordEncoder(passwordEncoder);
+  public AuthenticationManager customAuthenticationManager() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+    return new ProviderManager(provider);
   }
 
 }
