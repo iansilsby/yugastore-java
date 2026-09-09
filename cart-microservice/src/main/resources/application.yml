@@ -18,6 +18,12 @@ spring:
     url: jdbc:postgresql://127.0.0.1:5433/postgres
     username: postgres
     password: ""
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://${eureka.instance.hostname}:8761/eureka}
 logging:
   level:
     root: debug
