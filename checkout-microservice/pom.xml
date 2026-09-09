@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.3</version>
+    <version>3.5.16</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.yugabyte.app.yugastore</groupId>
@@ -18,9 +18,9 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
-    <spring-cloud.version>2021.0.0</spring-cloud.version>
-    <yugabyte-driver.version>4.6.0-yb-10</yugabyte-driver.version>
+    <java.version>21</java.version>
+    <spring-cloud.version>2025.0.3</spring-cloud.version>
+    <yugabyte-driver.version>4.19.0-yb-1</yugabyte-driver.version>
   </properties>
 
   <dependencyManagement>
@@ -56,10 +56,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.codehaus.groovy</groupId>
+      <groupId>org.apache.groovy</groupId>
       <artifactId>groovy</artifactId>
-      <version>3.0.8</version>
-      <classifier>indy</classifier>
     </dependency>
 
     <dependency>
@@ -109,7 +107,6 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>7.0.1.Final</version>
     </dependency>
   </dependencies>
 
