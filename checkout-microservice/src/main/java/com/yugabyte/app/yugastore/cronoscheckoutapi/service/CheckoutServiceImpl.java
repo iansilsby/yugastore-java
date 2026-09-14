@@ -1,6 +1,8 @@
 package com.yugabyte.app.yugastore.cronoscheckoutapi.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -49,6 +51,7 @@ public class CheckoutServiceImpl {
 		System.out.println("*** In Checkout products ***");
 		StringBuilder updateCartpreparedStatement = new StringBuilder();
 		updateCartpreparedStatement.append("BEGIN TRANSACTION");
+		List<Object> bindValues = new ArrayList<>();
 		Order currentOrder = null;
 		StringBuilder orderDetails = new StringBuilder();
 		orderDetails.append("Customer bought these Items: ");
@@ -63,20 +66,24 @@ public class CheckoutServiceImpl {
 				if (productInventory.getQuantity() < entry.getValue())
 					throw new NotEnoughProductsInStockException(productDetails.getTitle(), productInventory.getQuantity());
 
-				updateCartpreparedStatement.append(" UPDATE product_inventory SET quantity = quantity - "
-						+ entry.getValue() + " where asin = '" + entry.getKey() + "' ;");
+				updateCartpreparedStatement.append(" UPDATE product_inventory SET quantity = quantity - ? where asin = ? ;");
+				bindValues.add(entry.getValue());
+				bindValues.add(entry.getKey());
 				orderDetails.append(" Product: " + productDetails.getTitle() + ", Quantity: " + entry.getValue() + ";");
 			}
 			double orderTotal = getTotal(products);
 			orderDetails.append(" Order Total is : " + orderTotal);
 			currentOrder = createOrder(orderDetails.toString(), orderTotal);
 			updateCartpreparedStatement
-					.append(" INSERT INTO orders (order_id, user_id, order_details, order_time, order_total) VALUES ("
-							+ "'" + currentOrder.getId() + "', " + "'1'" + ", '" + currentOrder.getOrder_details()
-							+ "', '" + currentOrder.getOrder_time() + "'," + currentOrder.getOrder_total() + ");");
+					.append(" INSERT INTO orders (order_id, user_id, order_details, order_time, order_total) VALUES (?, ?, ?, ?, ?);");
+			bindValues.add(currentOrder.getId());
+			bindValues.add(String.valueOf(currentOrder.getUser_id()));
+			bindValues.add(currentOrder.getOrder_details());
+			bindValues.add(currentOrder.getOrder_time());
+			bindValues.add(currentOrder.getOrder_total());
 			updateCartpreparedStatement.append(" END TRANSACTION;");
 			System.out.println("Statemet is " + updateCartpreparedStatement.toString());
-			cassandraTemplate.getCqlOperations().execute(updateCartpreparedStatement.toString());
+			cassandraTemplate.getCqlOperations().execute(updateCartpreparedStatement.toString(), bindValues.toArray());
 		}
 		products.clear();
 		shoppingCartRestClient.clearCart(userId);
