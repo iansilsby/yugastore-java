@@ -11,14 +11,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.3</version>
+    <version>3.5.16</version>
     <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
 	</properties>
 
 	<dependencies>
@@ -61,8 +61,13 @@
 			</dependency>
 
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>jstl</artifactId>
+				<groupId>jakarta.servlet.jsp.jstl</groupId>
+				<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			</dependency>
+
+			<dependency>
+				<groupId>org.glassfish.web</groupId>
+				<artifactId>jakarta.servlet.jsp.jstl</artifactId>
 			</dependency>
 	</dependencies>
 	<build>

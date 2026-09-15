@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 COPY ./target/eureka-server-local-0.0.1-SNAPSHOT.jar /
 EXPOSE 8761
 ARG ipaddr
